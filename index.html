@@ -401,6 +401,32 @@ nav button.active{color:var(--pink-400);}
 .msum-row span.expense{color:var(--pink-400);}
 .msum-row span.balance-pos{color:var(--green-600);}
 .msum-row span.balance-neg{color:#ef4444;}
+
+/* ── 計画ページ ── */
+.plan-table{width:100%;border-collapse:collapse;font-size:12px;}
+.plan-table th{background:var(--pink-50);color:var(--gray-400);font-weight:500;padding:8px 8px;text-align:left;border-bottom:1px solid var(--pink-100);white-space:nowrap;font-size:11px;}
+.plan-table td{padding:8px 8px;border-bottom:0.5px solid var(--pink-50);vertical-align:top;color:var(--gray-700);}
+.plan-table tr:last-child td{border-bottom:none;}
+.plan-table .td-month{font-weight:700;white-space:nowrap;color:var(--gray-900);font-size:13px;}
+.plan-table .td-num{text-align:right;white-space:nowrap;font-weight:500;}
+.plan-table .td-green{color:var(--green-600);}
+.plan-table .td-red{color:#ef4444;}
+.plan-table .td-amber{color:var(--amber-600);}
+.plan-table .td-blue{color:var(--blue-600);}
+.plan-table .td-gray{color:var(--gray-400);}
+.plan-table .row-danger td{background:#fff5f5;}
+.plan-table .row-warn td{background:var(--amber-50);}
+.plan-table .row-highlight td{background:var(--green-50);}
+.plan-table .td-sub{font-size:10px;color:var(--gray-400);display:block;margin-top:1px;line-height:1.4;}
+.plan-badge{display:inline-block;font-size:10px;padding:1px 6px;border-radius:99px;margin:1px 0;white-space:nowrap;}
+.plan-badge-red{background:#fee2e2;color:#991b1b;}
+.plan-badge-amber{background:var(--amber-50);color:var(--amber-600);}
+.plan-badge-blue{background:var(--blue-50);color:var(--blue-600);}
+.plan-badge-pink{background:var(--pink-50);color:var(--pink-500);}
+.plan-badge-gray{background:var(--gray-100);color:var(--gray-500);}
+.plan-saving-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--pink-50);font-size:13px;color:var(--gray-700);}
+.plan-saving-row:last-child{border-bottom:none;}
+.plan-saving-amt{font-weight:700;color:var(--green-600);}
 </style>
 </head>
 <body>
@@ -777,6 +803,53 @@ nav button.active{color:var(--pink-400);}
   <div class="card" id="savingsAdvice" style="border-color:var(--pink-200);background:var(--pink-50);"></div>
 </div>
 
+
+<!-- ════ 計画ページ ════ -->
+<div class="page" id="page-plan">
+  <div class="page-header">
+    <span class="hi">📋</span>
+    <h1>返済計画</h1>
+  </div>
+  <div class="card">
+    <div class="sec-label">月別キャッシュフロー＆返済＆ライフイベント</div>
+    <div style="overflow-x:auto;">
+      <table class="plan-table" id="planTable">
+        <thead>
+          <tr>
+            <th>月</th>
+            <th>収入</th>
+            <th>生活費</th>
+            <th>返済・イベント</th>
+            <th>残高</th>
+          </tr>
+        </thead>
+        <tbody id="planTableBody">
+          <tr><td colspan="5" style="text-align:center;color:var(--gray-400);padding:1rem;">読み込み中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card" id="savingsSummaryCard">
+    <div class="sec-label">繰り上げ返済の節約効果</div>
+    <div class="plan-saving-row">
+      <span>プロミス（17.8%）→ 11月一括完済</span>
+      <span class="plan-saving-amt">約35,000円節約</span>
+    </div>
+    <div class="plan-saving-row">
+      <span>楽天①（24.5%）→ 11月一括完済</span>
+      <span class="plan-saving-amt">約76,000円節約</span>
+    </div>
+    <div class="plan-saving-row">
+      <span>楽天②（24.5%）→ 12月一括完済</span>
+      <span class="plan-saving-amt">約184,000円節約</span>
+    </div>
+    <div class="plan-saving-row" style="border-top:1px solid var(--pink-100);margin-top:6px;padding-top:8px;">
+      <span style="font-weight:700;">合計節約額</span>
+      <span class="plan-saving-amt" style="font-size:16px;">約295,000円 🎉</span>
+    </div>
+  </div>
+</div>
+
 <!-- ════ モーダル ════ -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
@@ -803,6 +876,9 @@ nav button.active{color:var(--pink-400);}
   </button>
   <button onclick="showPage('savings',this)">
     <span class="ni">🌱</span>貯蓄
+  </button>
+  <button onclick="showPage('plan',this)">
+    <span class="ni">📋</span>計画
   </button>
   <button onclick="showPage('settings',this)">
     <span class="ni">⚙️</span>設定
@@ -1458,6 +1534,37 @@ document.getElementById('budgetPrevMonth').addEventListener('click',()=>{
 document.getElementById('budgetNextMonth').addEventListener('click',()=>{
   budgetViewMonth++;if(budgetViewMonth>12){budgetViewMonth=1;budgetViewYear++;}renderBudget();
 });
+
+
+// ─── 計画ページ ───
+const PLAN_DATA = [
+  {month:'6月末', sub:'スタート', income:'—', expense:'—', events:[{label:'現金13万でスタート',cls:'plan-badge-gray'}], balance:'13万', balanceCls:'td-amber', rowCls:''},
+  {month:'7月', sub:'副業強化①', income:'32.5万', expense:'▲18.5万', events:[{label:'プロミス▲4万',cls:'plan-badge-amber'},{label:'楽天①▲1.3万',cls:'plan-badge-red'},{label:'楽天②▲3.1万',cls:'plan-badge-red'}], balance:'19万', balanceCls:'td-green', rowCls:''},
+  {month:'8月', sub:'副業強化②', income:'32.5万', expense:'▲18.5万', events:[{label:'プロミス▲4万',cls:'plan-badge-amber'},{label:'楽天①▲1.3万',cls:'plan-badge-red'},{label:'楽天②▲3.1万',cls:'plan-badge-red'}], balance:'25万', balanceCls:'td-green', rowCls:''},
+  {month:'9月', sub:'引越し！', income:'32.5万', expense:'▲18.5万', events:[{label:'引越し▲45万',cls:'plan-badge-pink'},{label:'楽天①▲1.3万',cls:'plan-badge-red'},{label:'楽天②▲3.1万',cls:'plan-badge-red'}], balance:'〜0万', balanceCls:'td-red', rowCls:'row-danger'},
+  {month:'10月', sub:'新居スタート', income:'32.5万', expense:'▲19万', events:[{label:'プロミス▲4万',cls:'plan-badge-amber'},{label:'楽天①▲1.3万',cls:'plan-badge-red'},{label:'楽天②▲3.1万',cls:'plan-badge-red'},{label:'長沼静①▲2.7万',cls:'plan-badge-pink'}], balance:'8万', balanceCls:'td-amber', rowCls:'row-warn'},
+  {month:'11月', sub:'ADR返金！', income:'92.5万', expense:'▲19万', events:[{label:'プロミス一括▲32万',cls:'plan-badge-amber'},{label:'楽天①一括▲38万',cls:'plan-badge-red'},{label:'楽天②通常▲3.1万',cls:'plan-badge-red'},{label:'長沼静②▲2.7万',cls:'plan-badge-pink'}], balance:'約8万', balanceCls:'td-green', rowCls:'row-highlight'},
+  {month:'12月', sub:'ボーナス！', income:'82.5万', expense:'▲19万', events:[{label:'楽天②一括▲55万',cls:'plan-badge-red'},{label:'長沼静③▲2.7万',cls:'plan-badge-pink'}], balance:'約14万', balanceCls:'td-green', rowCls:'row-highlight'},
+  {month:'1月', sub:'旅行請求', income:'32.5万', expense:'▲19万', events:[{label:'旅行請求▲25万',cls:'plan-badge-pink'}], balance:'約2.5万', balanceCls:'td-amber', rowCls:''},
+  {month:'2月', sub:'回復期', income:'32.5万', expense:'▲19万', events:[{label:'イベントなし',cls:'plan-badge-gray'}], balance:'約16万', balanceCls:'td-green', rowCls:''},
+  {month:'3月〜', sub:'貯蓄期', income:'32.5万', expense:'▲19万', events:[{label:'防衛資金を積む',cls:'plan-badge-gray'}], balance:'毎月+13万', balanceCls:'td-green', rowCls:''},
+  {month:'〜秋', sub:'着付け開始', income:'32.5万', expense:'▲19万', events:[{label:'きものすなお基本▲20万',cls:'plan-badge-pink'},{label:'長沼静次ステップ▲10万',cls:'plan-badge-pink'}], balance:'残高による', balanceCls:'td-amber', rowCls:'row-highlight'},
+  {month:'2027年〜', sub:'資産形成', income:'32.5万', expense:'▲19万', events:[{label:'NISA▲3万',cls:'plan-badge-blue'},{label:'iDeCo▲2.3万',cls:'plan-badge-blue'},{label:'きものすなお実践▲25万',cls:'plan-badge-pink'}], balance:'積立開始', balanceCls:'td-blue', rowCls:''},
+];
+
+function renderPlan(){
+  const tbody = document.getElementById('planTableBody');
+  if(!tbody) return;
+  tbody.innerHTML = PLAN_DATA.map(row => `
+    <tr class="${row.rowCls}">
+      <td class="td-month">${row.month}<span class="td-sub">${row.sub}</span></td>
+      <td class="td-num td-green">${row.income}</td>
+      <td class="td-num td-red">${row.expense}</td>
+      <td>${row.events.map(e=>`<span class="plan-badge ${e.cls}">${e.label}</span>`).join('<br>')}</td>
+      <td class="td-num ${row.balanceCls}">${row.balance}</td>
+    </tr>
+  `).join('');
+}
 
 // ─── 貯蓄ページ ───
 let savingsChart=null;
